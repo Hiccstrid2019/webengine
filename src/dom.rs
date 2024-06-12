@@ -1,6 +1,6 @@
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
-type AttrMap = HashMap<String, String>;
+pub type AttrMap = HashMap<String, String>;
 
 #[derive(Debug)]
 pub struct Node {
@@ -20,16 +20,21 @@ pub struct ElementData {
     pub attibutes: AttrMap,
 }
 
-pub fn text(data: String) -> Node {
-    Node { children: Vec::new(), node_type: NodeType::Text(data) }
-}
+impl Node {
+    pub fn text(data: String) -> Node {
+        Node {
+            children: Vec::new(),
+            node_type: NodeType::Text(data),
+        }
+    }
 
-pub fn elem(name: String, attrs: AttrMap, children: Vec<Node>) -> Node {
-    Node {
-        children: children,
-        node_type: NodeType::Element(ElementData {
-            tag_name: name,
-            attibutes: attrs
-        })
+    pub fn elem(name: String, attrs: AttrMap, children: Vec<Node>) -> Node {
+        Node {
+            children: children,
+            node_type: NodeType::Element(ElementData {
+                tag_name: name,
+                attibutes: attrs,
+            }),
+        }
     }
 }
