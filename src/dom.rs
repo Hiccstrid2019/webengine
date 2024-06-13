@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt;
 
 pub type AttrMap = HashMap<String, String>;
 
@@ -17,7 +18,7 @@ pub enum NodeType {
 #[derive(Debug)]
 pub struct ElementData {
     pub tag_name: String,
-    pub attibutes: AttrMap,
+    pub attributes: AttrMap,
 }
 
 impl Node {
@@ -33,8 +34,26 @@ impl Node {
             children: children,
             node_type: NodeType::Element(ElementData {
                 tag_name: name,
-                attibutes: attrs,
+                attributes: attrs,
             }),
+        }
+    }
+}
+
+impl fmt::Display for Node {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match &self.node_type {
+            NodeType::Element(data) => write!(f, "<{}>\n", data.tag_name)?,
+            NodeType::Text(string) => write!(f, "{}\n", string)?,
+        };
+
+        for node in &self.children {
+            write!(f, "{}", node)?;
+        }
+        
+        match &self.node_type {
+            NodeType::Element(data) => write!(f, "</{}>\n", data.tag_name),
+            NodeType::Text(_) => write!(f, ""),
         }
     }
 }
