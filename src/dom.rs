@@ -50,7 +50,7 @@ impl fmt::Display for Node {
         for node in &self.children {
             write!(f, "{}", node)?;
         }
-        
+
         match &self.node_type {
             NodeType::Element(data) => write!(f, "</{}>\n", data.tag_name),
             NodeType::Text(_) => write!(f, ""),
