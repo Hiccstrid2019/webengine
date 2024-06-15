@@ -1,5 +1,7 @@
+use std::fmt;
+
 #[derive(Debug)]
-struct Stylesheet {
+pub struct Stylesheet {
     rules: Vec<Rule>,
 }
 
@@ -58,6 +60,11 @@ impl Selector {
 
         (a, b, c)
     }
+}
+
+pub fn parse(source: String) -> Stylesheet {
+    let mut parser = Parser { pos: 0, input: source };
+    Stylesheet { rules: parser.parse_rules() }
 }
 
 #[derive(Debug)]
@@ -252,5 +259,87 @@ impl Parser {
         let s = &self.input[self.pos..self.pos + 2];
         self.pos += 2;
         u8::from_str_radix(s, 16).unwrap()
+    }
+}
+
+impl fmt::Display for Stylesheet {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for rule in &self.rules {
+            write!(f, "{}", rule)?;
+        }
+        Ok(())
+    }
+}
+
+impl fmt::Display for Rule {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (i, selector) in self.selectors.iter().enumerate() {
+            match selector {
+                Selector::Simple(s) => {
+                    write!(f, "{}", s)?;
+                    if i != self.selectors.len() - 1 {
+                        write!(f, ",")?;
+                    }
+                    write!(f, " ")?;
+                },
+            };
+        }
+        
+        write!(f, "{{\n")?;
+
+        for declaration in &self.declarations {
+            write!(f, "    {}\n", declaration)?;
+        }
+
+        write!(f, "}}\n\n")
+    }
+}
+
+impl fmt::Display for SimpleSelector {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match &self.tag_name {
+            Some(t) => write!(f, "{}", t)?,
+            None => write!(f, "")?,
+        };
+        
+        match &self.id {
+            Some(t) => write!(f, "#{}", t)?,
+            None => write!(f, "")?,
+        };
+
+        for cl in &self.class {
+            write!(f, ".{}", cl)?;
+        }
+        Ok(())
+    }
+}
+
+impl fmt::Display for Declaration {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}: {};", self.name, self.value)
+    }
+}
+
+impl fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Value::Keyword(s) => write!(f, "{}", s),
+            Value::Length(v, u) => write!(f, "{}{}", v, u),
+            Value::ColorValue(c) => write!(f, "{}", c),
+        }
+    }
+}
+
+impl fmt::Display for Unit {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Unit::Px => write!(f, "px"),
+        }
+    }
+}
+
+impl fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "#{:x}{:x}{:x}", self.r, self.g, self.b)
     }
 }
