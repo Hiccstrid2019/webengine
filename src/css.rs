@@ -2,46 +2,46 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct Stylesheet {
-    rules: Vec<Rule>,
+    pub rules: Vec<Rule>,
 }
 
 #[derive(Debug)]
-struct Rule {
-    selectors: Vec<Selector>,
-    declarations: Vec<Declaration>,
+pub struct Rule {
+    pub selectors: Vec<Selector>,
+    pub declarations: Vec<Declaration>,
 }
 
 #[derive(Debug)]
-enum Selector {
+pub enum Selector {
     Simple(SimpleSelector),
 }
 
 #[derive(Debug)]
-struct SimpleSelector {
-    tag_name: Option<String>,
-    id: Option<String>,
-    class: Vec<String>,
+pub struct SimpleSelector {
+    pub tag_name: Option<String>,
+    pub id: Option<String>,
+    pub class: Vec<String>,
 }
 
 #[derive(Debug)]
-struct Declaration {
-    name: String,
-    value: Value,
+pub struct Declaration {
+    pub name: String,
+    pub value: Value,
 }
 
-#[derive(Debug)]
-enum Value {
+#[derive(Debug, Clone)]
+pub enum Value {
     Keyword(String),
     Length(f32, Unit),
     ColorValue(Color),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Unit {
     Px,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Color {
     r: u8,
     g: u8,
@@ -49,10 +49,10 @@ struct Color {
     a: u8,
 }
 
-type Speciaficity = (usize, usize, usize);
+pub type Speciaficity = (usize, usize, usize);
 
 impl Selector {
-    fn speciaficity(&self) -> Speciaficity {
+    pub fn speciaficity(&self) -> Speciaficity {
         let Selector::Simple(ref simple) = *self;
         let a = simple.id.iter().count();
         let b = simple.class.len();
@@ -63,8 +63,13 @@ impl Selector {
 }
 
 pub fn parse(source: String) -> Stylesheet {
-    let mut parser = Parser { pos: 0, input: source };
-    Stylesheet { rules: parser.parse_rules() }
+    let mut parser = Parser {
+        pos: 0,
+        input: source,
+    };
+    Stylesheet {
+        rules: parser.parse_rules(),
+    }
 }
 
 #[derive(Debug)]
@@ -281,10 +286,10 @@ impl fmt::Display for Rule {
                         write!(f, ",")?;
                     }
                     write!(f, " ")?;
-                },
+                }
             };
         }
-        
+
         write!(f, "{{\n")?;
 
         for declaration in &self.declarations {
@@ -301,7 +306,7 @@ impl fmt::Display for SimpleSelector {
             Some(t) => write!(f, "{}", t)?,
             None => write!(f, "")?,
         };
-        
+
         match &self.id {
             Some(t) => write!(f, "#{}", t)?,
             None => write!(f, "")?,

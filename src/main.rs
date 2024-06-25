@@ -1,6 +1,7 @@
 pub mod css;
 pub mod dom;
 pub mod html;
+pub mod style;
 
 fn main() {
     let node = html::parse(
